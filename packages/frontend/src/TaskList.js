@@ -27,6 +27,18 @@ function TaskList({ onEdit }) {
     });
   };
 
+  const getPriorityColor = (priority) => {
+    switch (priority) {
+      case 'P1':
+        return '#f44336'; // Red
+      case 'P2':
+        return '#ff9800'; // Orange
+      case 'P3':
+      default:
+        return '#9e9e9e'; // Gray
+    }
+  };
+
   const fetchTasks = async () => {
     try {
       setLoading(true);
@@ -220,6 +232,18 @@ function TaskList({ onEdit }) {
                   }}
                 />
               )}
+              <Chip
+                label={task.priority || 'P3'}
+                size="small"
+                sx={{
+                  height: 20,
+                  fontSize: '0.7rem',
+                  fontWeight: 600,
+                  backgroundColor: getPriorityColor(task.priority || 'P3'),
+                  color: 'white',
+                  minWidth: '30px'
+                }}
+              />
               <Box 
                 sx={{ 
                   display: 'flex', 

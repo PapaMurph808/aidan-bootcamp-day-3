@@ -1,0 +1,168 @@
+  - Story: Add optional dueDate field (ISO YYYY-MM-DD)
+  - Story: Add optional dueDate field (ISO YYYY-MM-DD)
+    - Acceptance Criteria:
+      - A task may be saved without a `dueDate`.
+      - When provided, `dueDate` is stored as ISO `YYYY-MM-DD`.
+      - Invalid `dueDate` values are ignored (treated as absent) and do not block save.
+      - `dueDate` persists in local storage and survives page reload.
+    - Technical Requirements:
+      - Extend task model to include optional `dueDate` string in ISO `YYYY-MM-DD` format.
+      - Provide a date input control that captures a `YYYY-MM-DD` value.
+      - Normalize user input to ISO `YYYY-MM-DD` before save.
+      - Persist `dueDate` alongside task data in local storage.
+  - Story: Validate dueDate and ignore invalid values
+    - Acceptance Criteria:
+      - Inputs not matching ISO `YYYY-MM-DD` or impossible dates (e.g., 2025-02-30) are treated as no `dueDate`.
+      - Tasks with invalid `dueDate` are excluded from Today/Overdue filters.
+      - No errors or crashes occur when invalid dates are entered.
+    - Technical Requirements:
+      - Implement `isValidISODate(str)` using regex + calendar validation.
+      - On save, set `dueDate` to undefined/null when invalid.
+      - Filters must operate on parsed dates and skip invalid values.
+  - Story: Filter Today by tasks due today (incomplete only)
+    - Acceptance Criteria:
+      - Selecting Today shows only tasks with `dueDate` equal to the current date and `completed=false`.
+      - Completed tasks are excluded from Today.
+      - Date comparison uses the client’s local date.
+    - Technical Requirements:
+      - Implement `getTodayISO()` returning local `YYYY-MM-DD`.
+      - Implement `isDueToday(task)` using `dueDate === getTodayISO()` and `completed === false`.
+  - Story: Filter Overdue by past-due tasks (incomplete only)
+    - Acceptance Criteria:
+      - Selecting Overdue shows only tasks with `dueDate` earlier than the current date and `completed=false`.
+      - Completed tasks are excluded from Overdue.
+      - Tasks without `dueDate` do not appear in Overdue.
+    - Technical Requirements:
+      - Implement `isOverdue(task)` comparing `dueDate < getTodayISO()` and `completed === false`.
+      - Exclude tasks with missing/invalid `dueDate` from Overdue results.
+\- Epic: Task Priority (MVP)
+  - Story: Add priority enum (P1, P2, P3) with default P3
+    - Acceptance Criteria:
+      - A task’s `priority` accepts only `P1`, `P2`, or `P3`.
+      - When unspecified or invalid, `priority` defaults to `P3`.
+      - `priority` persists in local storage and survives page reload.
+    - Technical Requirements:
+      - Extend task model to include `priority: 'P1' | 'P2' | 'P3'`.
+      - Default `priority` to `P3` on task creation or invalid input.
+      - Provide a selection control with options P1/P2/P3.
+  - Story: Enforce valid priority values and defaulting
+    - Acceptance Criteria:
+      - Invalid `priority` inputs are coerced to `P3`.
+      - Filters and sorting (when implemented) read `priority` consistently.
+    - Technical Requirements:
+      - Implement `sanitizePriority(value)` that returns `P1|P2|P3` or `P3` for invalid.
+      - Ensure all reads/writes of `priority` use the sanitized value.
+\- Epic: Filters and Views (MVP)
+  - Story: Implement All view showing completed and incomplete
+    - Acceptance Criteria:
+      - Selecting All displays all tasks regardless of `completed` or `dueDate`.
+      - Switching between views updates the list without page refresh.
+    - Technical Requirements:
+      - Implement a view state (e.g., tabs) controlling the active filter.
+      - Render the task list based on current filter function.
+  - Story: Implement Today view (incomplete due today)
+    - Acceptance Criteria:
+      - Today view includes only tasks due today and not completed.
+      - Tasks with no `dueDate` are excluded from Today.
+    - Technical Requirements:
+      - Use `isDueToday(task)` to compute Today list.
+      - Ensure view updates reactively when tasks change.
+  - Story: Implement Overdue view (incomplete past due)
+    - Acceptance Criteria:
+      - Overdue view includes only tasks with `dueDate` earlier than today and not completed.
+      - Tasks with no `dueDate` are excluded from Overdue.
+    - Technical Requirements:
+      - Use `isOverdue(task)` to compute Overdue list.
+      - Ensure view updates reactively when tasks change.
+\- Epic: Local Storage Persistence (MVP)
+  - Story: Persist tasks locally without backend changes
+    - Acceptance Criteria:
+      - Creating, editing, completing, and deleting tasks update local storage only.
+      - No network requests are made to a backend when managing tasks.
+      - Task state remains after page reload.
+    - Technical Requirements:
+      - Use `localStorage` under a single key (e.g., `todo.tasks`) to store an array of tasks.
+      - Serialize/deserialize tasks via JSON with error handling for corrupt data.
+      - Initialize app state from local storage on load and write back on mutations.
+\- Epic: Validation (MVP)
+  - Story: Require title for all tasks
+    - Acceptance Criteria:
+      - Saving a task without `title` is prevented.
+      - The app communicates that `title` is required (e.g., disables save or shows inline validation).
+    - Technical Requirements:
+      - Implement `isValidTitle(title)` that requires a non-empty trimmed string.
+      - Disable save or show inline error when validation fails.
+  - Story: Handle invalid dueDate gracefully (treat as absent)
+    - Acceptance Criteria:
+      - Invalid `dueDate` values do not prevent saving the task.
+      - Invalid `dueDate` is not displayed and is treated as no date for filters.
+    - Technical Requirements:
+      - Omit rendering of date badge/label when `dueDate` is missing/invalid.
+      - Store `dueDate` as null/undefined for invalid values; filters skip null/invalid.
+\- Epic: Overdue Visual Highlighting (Post-MVP)
+  - Story: Highlight overdue tasks visually (red styling)
+    - Acceptance Criteria:
+      - Overdue tasks display with a distinct red visual treatment.
+      - Highlighting applies only when `completed=false` and `dueDate` is earlier than today.
+      - Visual treatment maintains sufficient contrast for readability.
+    - Technical Requirements:
+      - Apply a conditional class (e.g., `task-overdue`) when `isOverdue(task)` is true.
+      - Define styles to render a red highlight for overdue items with WCAG-compliant contrast.
+\- Epic: Sorting Rules (Post-MVP)
+  - Story: Sort overdue tasks first
+    - Acceptance Criteria:
+      - Lists order overdue tasks ahead of non-overdue tasks.
+      - Overdue determination uses local date.
+    - Technical Requirements:
+      - Implement comparator step 1: `isOverdue(a) !== isOverdue(b)` determines order (overdue first).
+  - Story: Sort by priority P1 → P2 → P3
+    - Acceptance Criteria:
+      - Within the same overdue/non-overdue grouping, tasks sort by `priority` descending (P1, P2, P3).
+    - Technical Requirements:
+      - Implement comparator step 2: map `priority` to weights (P1=3, P2=2, P3=1) and sort descending.
+  - Story: Sort by due date ascending
+    - Acceptance Criteria:
+      - For tasks with equal priority, earlier `dueDate` appears before later `dueDate`.
+    - Technical Requirements:
+      - Implement comparator step 3: compare parsed `dueDate` ascending.
+  - Story: Place undated tasks last
+    - Acceptance Criteria:
+      - Tasks without `dueDate` appear after all dated tasks.
+      - Sorting is stable and deterministic across views.
+    - Technical Requirements:
+      - Treat missing `dueDate` as greater than any valid date (e.g., `Infinity`) in comparator.
+      - Use a stable sort or tie-breaker (e.g., creation timestamp) for determinism.
+\- Epic: Priority Display Enhancements (Post-MVP)
+  - Story: Show color-coded priority badges (P1 red, P2 orange, P3 gray)
+    - Acceptance Criteria:
+      - Each task displays a priority badge with colors: P1 red, P2 orange, P3 gray.
+      - Badge text clearly indicates priority (e.g., “P1”).
+    - Technical Requirements:
+      - Render a badge/chip element for `priority` with color mapping: P1→red, P2→orange, P3→gray.
+      - Ensure text label (“P1”, “P2”, “P3”) is readable with sufficient contrast.
+\- Epic: Out of Scope (Reference)
+  - Story: Exclude notifications from implementation
+    - Acceptance Criteria:
+      - No UI or background logic for notifications exists.
+    - Technical Requirements:
+      - Avoid any timers/background processes related to alerts or notifications.
+  - Story: Exclude recurring tasks from implementation
+    - Acceptance Criteria:
+      - No UI or logic for recurring schedules exists.
+    - Technical Requirements:
+      - Do not add recurrence fields or repeat-generation logic.
+  - Story: Exclude multi-user features
+    - Acceptance Criteria:
+      - The app operates in single-user mode with local persistence only.
+    - Technical Requirements:
+      - Do not add authentication, user IDs, or multi-tenant data separation.
+  - Story: Exclude keyboard navigation and advanced accessibility
+    - Acceptance Criteria:
+      - No additional keyboard navigation or advanced ARIA beyond current baseline is implemented.
+    - Technical Requirements:
+      - Do not implement new key bindings or advanced ARIA patterns beyond basic semantics.
+  - Story: Exclude external storage or backend changes
+    - Acceptance Criteria:
+      - No external storage integrations or backend API calls are implemented.
+    - Technical Requirements:
+      - Remove or avoid any API client code; persist only via local storage.

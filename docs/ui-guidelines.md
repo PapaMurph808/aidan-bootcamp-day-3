@@ -12,6 +12,22 @@
 - Text: #212121 (dark gray/black)
 - Completed tasks: #9e9e9e (gray, with strikethrough)
 
+### Priority Colors (from design image)
+
+- P1: var(--priority-p1)
+- P2: var(--priority-p2)
+- P3: var(--priority-p3)
+
+### Priority Selection States
+
+- Selected priority item: `#07F2E6` (use `var(--priority-selected)`).
+- Unselected priority item: `#7A7A7A` (use `var(--priority-unselected)`).
+
+Implementation notes:
+- Define CSS variables in packages/frontend/src/index.css under `:root` for `--priority-p1`, `--priority-p2`, `--priority-p3`.
+- UI components must reference these variables (e.g., `backgroundColor: var(--priority-p1)`) so updates require no code changes.
+- Define `--priority-selected` and `--priority-unselected` in `packages/frontend/src/index.css` and apply via `.priority-option` class on priority menu items.
+
 ## Button Styles
 
 - Use contained buttons for primary actions (e.g., Add Task, Save)

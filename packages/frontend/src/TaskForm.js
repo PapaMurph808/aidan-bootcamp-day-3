@@ -166,9 +166,9 @@ function TaskForm({ onSave, initialTask }) {
               }
             }}
           >
-            <MenuItem value="P1">P1 - High Priority</MenuItem>
-            <MenuItem value="P2">P2 - Medium Priority</MenuItem>
-            <MenuItem value="P3">P3 - Low Priority</MenuItem>
+            <MenuItem className="priority-option" value="P1">P1 - High Priority</MenuItem>
+            <MenuItem className="priority-option" value="P2">P2 - Medium Priority</MenuItem>
+            <MenuItem className="priority-option" value="P3">P3 - Low Priority</MenuItem>
           </Select>
         </FormControl>
         {error && <Typography color="error" sx={{ fontWeight: 500, fontSize: '0.875rem' }}>{error}</Typography>}

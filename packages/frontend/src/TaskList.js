@@ -30,12 +30,12 @@ function TaskList({ onEdit }) {
   const getPriorityColor = (priority) => {
     switch (priority) {
       case 'P1':
-        return '#f44336'; // Red
+        return 'var(--priority-p1)';
       case 'P2':
-        return '#ff9800'; // Orange
+        return 'var(--priority-p2)';
       case 'P3':
       default:
-        return '#9e9e9e'; // Gray
+        return 'var(--priority-p3)';
     }
   };
 

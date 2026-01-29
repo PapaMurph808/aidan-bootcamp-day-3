@@ -4,6 +4,10 @@
 
 - New tasks created without an explicit priority are stored with priority value "P3".
 - Priority field supports only values "P1", "P2", "P3".
+ - Priority badges display using UI guideline variables:
+	 - P1 uses var(--priority-p1)
+	 - P2 uses var(--priority-p2)
+	 - P3 uses var(--priority-p3)
 
 ## Technical Requirements
 
@@ -11,3 +15,4 @@
 - When mapping backend `/api/items` (which returns `{id,name}`) to tasks, set `priority: 'P3'`.
 - Update local storage serialization to persist `priority`.
 - Add UI control (e.g., select dropdown) constrained to P1/P2/P3.
+ - Reference CSS variables for colors (defined in `packages/frontend/src/index.css`).
